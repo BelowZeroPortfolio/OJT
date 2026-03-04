@@ -73,6 +73,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Supabase Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Supabase real-time functionality
+    |
+    */
+
+    'supabase_url' => env('SUPABASE_URL'),
+    'supabase_anon_key' => env('SUPABASE_ANON_KEY'),
+    'supabase_service_key' => env('SUPABASE_SERVICE_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

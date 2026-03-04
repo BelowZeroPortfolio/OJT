@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Location extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +18,9 @@ class Location extends Model
         'location_code',
         'name',
         'address',
+        'latitude',
+        'longitude',
+        'radius',
         'is_active',
     ];
 
@@ -29,15 +31,9 @@ class Location extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
-
-    /**
-     * Get the users assigned to this location.
-     */
-    public function users()
-    {
-        return $this->hasMany(User::class, 'assigned_location_id');
-    }
 
     /**
      * Get the attendance records for this location.

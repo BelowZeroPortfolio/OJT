@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'OJT Attendance System') }}</title>
+    
+    <!-- Supabase JavaScript SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script>
+        // Debug: Check if Supabase is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 Checking Supabase availability...');
+            console.log('window.supabase:', typeof window.supabase);
+            if (window.supabase && window.supabase.createClient) {
+                console.log('✅ Supabase library loaded successfully');
+            } else {
+                console.error('❌ Supabase library not loaded');
+            }
+        });
+    </script>
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 antialiased">

@@ -22,7 +22,6 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'student_id' => null,
                 'course' => null,
-                'assigned_location_id' => null,
                 'email_verified_at' => now(),
             ],
             [
@@ -32,7 +31,6 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'student_id' => null,
                 'course' => null,
-                'assigned_location_id' => null,
                 'email_verified_at' => now(),
             ],
             [
@@ -42,7 +40,6 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'student_id' => null,
                 'course' => null,
-                'assigned_location_id' => null,
                 'email_verified_at' => now(),
             ],
         ];

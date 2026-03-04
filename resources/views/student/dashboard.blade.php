@@ -434,23 +434,41 @@ let supabaseClient = null;
 
 // Initialize Supabase client if available
 function initializeSupabase() {
-    const supabaseUrl = '{{ env("VITE_SUPABASE_URL") }}';
-    const supabaseAnonKey = '{{ env("VITE_SUPABASE_ANON_KEY") }}';
+    const supabaseUrl = '{{ config("app.supabase_url") ?? env("SUPABASE_URL") }}';
+    const supabaseAnonKey = '{{ config("app.supabase_anon_key") ?? env("SUPABASE_ANON_KEY") }}';
+    
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Supabase Key exists:', !!supabaseAnonKey);
     
     if (supabaseUrl && supabaseAnonKey && window.supabase) {
-        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
-            realtime: {
-                params: {
-                    eventsPerSecond: 10
+        try {
+            supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+                realtime: {
+                    params: {
+                        eventsPerSecond: 10
+                    }
+                },
+                auth: {
+                    persistSession: false
                 }
-            },
-            auth: {
-                persistSession: false
-            }
-        });
-        console.log('✅ Supabase client initialized');
-        return true;
+            });
+            console.log('✅ Supabase client initialized');
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to initialize Supabase:', error);
+            return false;
+        }
     }
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.log('⚠️ Missing Supabase environment variables');
+        console.log('URL:', supabaseUrl);
+        console.log('Key exists:', !!supabaseAnonKey);
+    }
+    if (!window.supabase) {
+        console.log('⚠️ Supabase library not loaded');
+    }
+    
     console.log('⚠️ Supabase not available, using fallback mode');
     return false;
 }
