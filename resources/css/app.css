@@ -62,4 +62,66 @@
   .scrollbar-dark::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground));
   }
+
+  /* Custom Yellow Scrollbar - Secondary Theme */
+  .scrollbar-yellow {
+    scrollbar-width: thin;
+    scrollbar-color: #eab308 transparent;
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    margin: 4px 0;
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #fbbf24 0%, #eab308 50%, #d97706 100%);
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 2px 4px rgba(234, 179, 8, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    min-height: 20px;
+    opacity: 0.7;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 2px 8px rgba(217, 119, 6, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: scaleX(1.1);
+    opacity: 1;
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, #d97706 0%, #b45309 50%, #92400e 100%);
+    box-shadow: 
+      0 1px 2px rgba(146, 64, 14, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scaleX(1.05);
+  }
+
+  .scrollbar-yellow::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox support */
+  @supports (scrollbar-width: thin) {
+    .scrollbar-yellow {
+      scrollbar-width: thin;
+      scrollbar-color: #eab308 transparent;
+    }
+    
+    .scrollbar-yellow:hover {
+      scrollbar-color: #d97706 rgba(0, 0, 0, 0.1);
+    }
+  }
 }

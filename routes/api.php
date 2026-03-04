@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Student attendance API endpoint
 Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
     Route::get('/student/attendance', [StudentAttendanceController::class, 'index']);
+    Route::post('/student/rfid-attendance', [StudentAttendanceController::class, 'rfidAttendance']);
 });
 
 // Admin attendance API endpoint

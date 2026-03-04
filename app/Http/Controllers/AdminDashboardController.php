@@ -65,7 +65,7 @@ class AdminDashboardController extends Controller
         $statistics = Cache::remember('dashboard_stats_admin', CacheService::DASHBOARD_STATS_TTL, function () {
             $totalStudents = User::where('role', 'student')->count();
             
-            $presentToday = AttendanceRecord::whereDate('date', Carbon::today())
+            $presentToday = AttendanceRecord::whereDate('date', Carbon::today('Asia/Manila'))
                 ->where('scan_type', 'time_in')
                 ->distinct('user_id')
                 ->count('user_id');

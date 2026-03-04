@@ -93,6 +93,23 @@
                     </div>
                 </div>
 
+                <!-- RFID Registration -->
+                <div class="relative group">
+                    <a href="{{ route('admin.rfid-registration') }}" 
+                       :class="sidebarOpen ? 'justify-start' : 'justify-center'"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.rfid-registration') ? 'bg-primary text-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium whitespace-nowrap">RFID Cards</span>
+                    </a>
+                    <div x-show="!sidebarOpen" 
+                         class="fixed left-20 px-3 py-2 bg-card text-foreground text-sm rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none shadow-lg z-50 border border-border"
+                         style="margin-top: -2.25rem;">
+                        RFID Cards
+                    </div>
+                </div>
+
                 <!-- Divider -->
                 <div x-show="sidebarOpen" x-transition class="pt-4 pb-2">
                     <div class="px-3 text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider">Reports</div>

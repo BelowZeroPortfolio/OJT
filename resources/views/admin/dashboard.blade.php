@@ -228,10 +228,10 @@
                             {{ $record->date->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                            {{ $record->time_in->format('h:i A') }}
+                            {{ $record->time_in->setTimezone('Asia/Manila')->format('h:i A') }} PHT
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                            {{ $record->time_out ? $record->time_out->format('h:i A') : '-' }}
+                            {{ $record->time_out ? $record->time_out->setTimezone('Asia/Manila')->format('h:i A') . ' PHT' : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($record->time_out)
@@ -286,11 +286,11 @@
                 <div class="grid grid-cols-2 gap-2 text-sm">
                     <div>
                         <p class="text-muted-foreground">Time In</p>
-                        <p class="text-foreground">{{ $record->time_in->format('h:i A') }}</p>
+                        <p class="text-foreground">{{ $record->time_in->setTimezone('Asia/Manila')->format('h:i A') }} PHT</p>
                     </div>
                     <div>
                         <p class="text-muted-foreground">Time Out</p>
-                        <p class="text-foreground">{{ $record->time_out ? $record->time_out->format('h:i A') : '-' }}</p>
+                        <p class="text-foreground">{{ $record->time_out ? $record->time_out->setTimezone('Asia/Manila')->format('h:i A') . ' PHT' : '-' }}</p>
                     </div>
                 </div>
             </div>
