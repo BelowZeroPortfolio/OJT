@@ -101,9 +101,9 @@
             <!-- Quick Presets -->
             <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
                 <span class="text-xs text-muted-foreground">Quick:</span>
-                <button type="button" @click="setDateRange('today')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary text-foreground rounded transition-all">Today</button>
-                <button type="button" @click="setDateRange('week')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary text-foreground rounded transition-all">Week</button>
-                <button type="button" @click="setDateRange('month')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary text-foreground rounded transition-all">Month</button>
+                <button type="button" @click="setDateRange('today')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary hover:text-foreground text-foreground rounded transition-all">Today</button>
+                <button type="button" @click="setDateRange('week')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary hover:text-foreground text-foreground rounded transition-all">Week</button>
+                <button type="button" @click="setDateRange('month')" class="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary hover:text-foreground text-foreground rounded transition-all">Month</button>
                 <span x-show="activeFiltersCount > 0" class="ml-auto text-xs text-muted-foreground">
                     <span x-text="activeFiltersCount"></span> filter<span x-show="activeFiltersCount > 1">s</span> active
                 </span>

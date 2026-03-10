@@ -18,9 +18,6 @@ class Location extends Model
         'location_code',
         'name',
         'address',
-        'latitude',
-        'longitude',
-        'radius',
         'is_active',
     ];
 
@@ -31,8 +28,6 @@ class Location extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
     ];
 
     /**
@@ -41,5 +36,13 @@ class Location extends Model
     public function attendanceRecords()
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * Get the users assigned to this location.
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class, 'assigned_location_id');
     }
 }

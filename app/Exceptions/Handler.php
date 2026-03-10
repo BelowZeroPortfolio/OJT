@@ -102,8 +102,10 @@ class Handler extends ExceptionHandler
                 ], 500);
             }
 
-            // For web requests, show a generic error page
-            return response()->view('errors.500', [], 500);
+            // For web requests, redirect back with error message
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'A database error occurred. Please try again or contact support if the problem persists.']);
         });
 
         // Custom rendering for model not found errors (HTTP 404)

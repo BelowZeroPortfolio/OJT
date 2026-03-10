@@ -11,16 +11,6 @@
     <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="flex justify-center mb-6">
-                <div class="w-12 h-12 border-2 border-primary rounded-lg flex items-center justify-center">
-                    <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-            <h1 class="text-center text-2xl font-bold text-foreground">
-                OJT Attendance System
-            </h1>
             <h2 class="mt-6 text-center text-3xl font-bold text-foreground">
                 Sign in to your account
             </h2>
@@ -194,13 +184,21 @@
                         </div>
                         <div class="relative flex justify-center text-sm">
                             <span class="px-2 bg-card text-muted-foreground">
-                                Need help?
+                                Don't have an account?
                             </span>
                         </div>
                     </div>
-                    <div class="mt-6 text-center">
-                        <p class="text-sm text-muted-foreground">
-                            Contact your administrator for account assistance
+                    <div class="mt-6">
+                        <a href="{{ route('register') }}" class="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            Create Student Account
+                        </a>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-muted-foreground">
+                            Need help? Contact your administrator
                         </p>
                     </div>
                 </div>

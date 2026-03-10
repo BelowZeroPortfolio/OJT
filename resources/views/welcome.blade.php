@@ -20,7 +20,10 @@
                         </div>
                         <span class="text-lg font-semibold text-foreground">OJT Attendance System</span>
                     </div>
-                    <div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors">
+                            Register
+                        </a>
                         <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                             Sign In
                         </a>
@@ -45,16 +48,16 @@
                     Streamline attendance tracking for students at multiple on-the-job training locations with RFID-enabled monitoring and real-time dashboards.
                 </p>
                 <div class="mt-12 flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl">
-                        Get Started
+                    <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl">
+                        Register Now
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                         </svg>
                     </a>
-                    <a href="#features" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-secondary text-foreground border border-border hover:bg-accent transition-all">
-                        Learn More
+                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-secondary text-foreground border border-border hover:bg-accent hover:text-accent-foreground transition-all">
+                        Sign In
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                         </svg>
                     </a>
                 </div>
@@ -167,11 +170,14 @@
                         Sign in to access your dashboard and start tracking attendance with our modern, efficient system.
                     </p>
                     <div class="flex flex-col sm:flex-row justify-center gap-4">
-                        <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl">
-                            Sign In Now
+                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl">
+                            Register Now
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                             </svg>
+                        </a>
+                        <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-base font-medium rounded-lg bg-secondary text-foreground border border-border hover:bg-accent hover:text-accent-foreground transition-all">
+                            Sign In
                         </a>
                     </div>
                 </div>
