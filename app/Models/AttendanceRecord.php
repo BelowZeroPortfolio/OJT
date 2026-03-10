@@ -23,7 +23,12 @@ class AttendanceRecord extends Model
         'time_out',
         'total_hours',
         'scan_type',
+        'scan_method',
+        'qr_token_id',
         'scanner_ip',
+        'scan_latitude',
+        'scan_longitude',
+        'geofence_verified',
         'is_valid',
         'validation_notes',
     ];
@@ -38,6 +43,9 @@ class AttendanceRecord extends Model
         'time_in' => 'datetime',
         'time_out' => 'datetime',
         'total_hours' => 'decimal:2',
+        'scan_latitude' => 'decimal:8',
+        'scan_longitude' => 'decimal:8',
+        'geofence_verified' => 'boolean',
         'is_valid' => 'boolean',
     ];
 
@@ -55,6 +63,14 @@ class AttendanceRecord extends Model
     public function location()
     {
         return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * Get the QR token used for this attendance.
+     */
+    public function qrToken()
+    {
+        return $this->belongsTo(QrAttendanceToken::class, 'qr_token_id');
     }
 
     /**

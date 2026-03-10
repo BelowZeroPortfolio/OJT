@@ -34,13 +34,37 @@ Route::post('/register', [\App\Http\Controllers\RegistrationController::class, '
 // Student dashboard route
 Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
-    Route::post('/student/rfid-attendance', [\App\Http\Controllers\Api\StudentAttendanceController::class, 'rfidAttendance'])->name('student.rfid-attendance');
     Route::get('/student/check-updates', [StudentDashboardController::class, 'checkUpdates'])->name('student.check-updates');
+    
+    // QR code scanner
+    Route::get('/student/qr-scanner', function () {
+        return view('student.qr-scanner');
+    })->name('student.qr-scanner');
+    
+    // QR code scanning endpoint (web-based, using session auth)
+    Route::post('/student/qr-scan', [\App\Http\Controllers\Api\QrAttendanceController::class, 'scan'])->name('student.qr-scan');
 });
 
 // Admin dashboard route
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // QR Attendance page
+    Route::get('/admin/qr-attendance', function () {
+        $locations = \App\Models\Location::withCount('users')->get();
+        return view('admin.qr-attendance', compact('locations'));
+    })->name('admin.qr-attendance');
+    
+    // QR code display
+    Route::get('/admin/qr-display/{locationId}', function ($locationId) {
+        $location = \App\Models\Location::findOrFail($locationId);
+        return view('admin.qr-display', compact('location'));
+    })->name('admin.qr-display');
+    
+    // QR code API endpoints (web-based, using session auth)
+    Route::get('/admin/qr-codes/generate/{locationId}', [\App\Http\Controllers\Api\AdminQrCodeController::class, 'generate'])->name('admin.qr-codes.generate');
+    Route::get('/admin/qr-codes/image/{locationId}', [\App\Http\Controllers\Api\AdminQrCodeController::class, 'getQrImage'])->name('admin.qr-codes.image');
+    Route::post('/admin/qr-codes/revoke/{tokenId}', [\App\Http\Controllers\Api\AdminQrCodeController::class, 'revoke'])->name('admin.qr-codes.revoke');
     
     // Reports and Activity Logs
     Route::get('/admin/reports', [ReportsController::class, 'index'])->name('admin.reports');

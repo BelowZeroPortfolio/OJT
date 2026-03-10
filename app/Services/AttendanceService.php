@@ -132,4 +132,20 @@ class AttendanceService
         
         return round($timeOutCarbon->diffInMinutes($timeInCarbon) / 60, 2);
     }
+
+    /**
+     * Get today's attendance record for a user at a location.
+     *
+     * @param int $userId
+     * @param int $locationId
+     * @return AttendanceRecord|null
+     */
+    public function getTodayRecord(int $userId, int $locationId): ?AttendanceRecord
+    {
+        return AttendanceRecord::where('user_id', $userId)
+            ->where('location_id', $locationId)
+            ->where('date', Carbon::today()->toDateString())
+            ->where('scan_type', 'time_in')
+            ->first();
+    }
 }

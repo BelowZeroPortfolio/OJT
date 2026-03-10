@@ -18,6 +18,10 @@ class Location extends Model
         'location_code',
         'name',
         'address',
+        'latitude',
+        'longitude',
+        'geofence_radius',
+        'enforce_geofence',
         'is_active',
     ];
 
@@ -27,6 +31,10 @@ class Location extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'geofence_radius' => 'integer',
+        'enforce_geofence' => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -44,5 +52,51 @@ class Location extends Model
     public function users()
     {
         return $this->hasMany(User::class, 'assigned_location_id');
+    }
+
+    /**
+     * Get QR tokens for this location.
+     */
+    public function qrTokens()
+    {
+        return $this->hasMany(QrAttendanceToken::class);
+    }
+
+    /**
+     * Calculate distance between two coordinates using Haversine formula.
+     * Returns distance in meters.
+     */
+    public function calculateDistance(float $lat, float $lon): float
+    {
+        $earthRadius = 6371000; // meters
+
+        $latFrom = deg2rad($this->latitude);
+        $lonFrom = deg2rad($this->longitude);
+        $latTo = deg2rad($lat);
+        $lonTo = deg2rad($lon);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+             cos($latFrom) * cos($latTo) *
+             sin($lonDelta / 2) * sin($lonDelta / 2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
+    }
+
+    /**
+     * Check if coordinates are within geofence.
+     */
+    public function isWithinGeofence(float $lat, float $lon): bool
+    {
+        if (!$this->enforce_geofence || !$this->latitude || !$this->longitude) {
+            return true; // Geofencing disabled or not configured
+        }
+
+        $distance = $this->calculateDistance($lat, $lon);
+        return $distance <= $this->geofence_radius;
     }
 }

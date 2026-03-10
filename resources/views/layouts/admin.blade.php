@@ -93,20 +93,20 @@
                     </div>
                 </div>
 
-                <!-- RFID Registration -->
+                <!-- QR Attendance -->
                 <div class="relative group">
-                    <a href="{{ route('admin.rfid-registration') }}" 
+                    <a href="{{ route('admin.qr-attendance') }}" 
                        :class="sidebarOpen ? 'justify-start' : 'justify-center'"
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.rfid-registration') ? 'bg-primary text-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground' }}">
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.qr-attendance') || request()->routeIs('admin.qr-display') ? 'bg-primary text-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                         </svg>
-                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium whitespace-nowrap">RFID Cards</span>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium whitespace-nowrap">QR Attendance</span>
                     </a>
                     <div x-show="!sidebarOpen" 
                          class="fixed left-20 px-3 py-2 bg-card text-foreground text-sm rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none shadow-lg z-50 border border-border"
                          style="margin-top: -2.25rem;">
-                        RFID Cards
+                        QR Attendance
                     </div>
                 </div>
 
@@ -247,6 +247,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                     <span class="ml-3 font-medium">Locations</span>
+                </a>
+
+                <a href="{{ route('admin.qr-attendance') }}" 
+                   class="flex items-center px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('admin.qr-attendance') || request()->routeIs('admin.qr-display') ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    </svg>
+                    <span class="ml-3 font-medium">QR Attendance</span>
                 </a>
 
                 <div class="pt-4 pb-2">

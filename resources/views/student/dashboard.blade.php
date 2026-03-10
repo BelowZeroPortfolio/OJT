@@ -34,106 +34,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" 
          x-data="studentDashboard()">
 
-        <!-- RFID Scanner Card -->
-        <div class="mb-8" x-data="rfidScanner()">
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 shadow-2xl">
-                <div class="text-center">
-                    <!-- Scanner Icon -->
-                    <div class="relative mb-6">
-                        <div class="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4" 
-                             :class="scannerStatus === 'scanning' ? 'animate-pulse' : ''">
-                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <!-- Scanning Animation Rings -->
-                        <div x-show="scannerStatus === 'scanning'" class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-20 h-20 border-2 border-white/30 rounded-full animate-ping"></div>
-                            <div class="absolute w-24 h-24 border-2 border-white/20 rounded-full animate-ping" style="animation-delay: 0.5s;"></div>
-                        </div>
-                    </div>
-
-                    <h2 class="text-2xl font-bold text-white mb-2">RFID Attendance Scanner</h2>
-                    <p class="text-blue-100 mb-6">Tap your RFID card or enter your ID number</p>
-
-                    <!-- Status Messages -->
-                    <div class="mb-6 min-h-[24px]">
-                        <div x-show="scannerStatus === 'ready'" class="text-blue-100">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            Ready to scan
-                        </div>
-                        <div x-show="scannerStatus === 'scanning'" class="text-white animate-pulse">
-                            <svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                        </div>
-                        <div x-show="scannerStatus === 'success'" class="text-green-300">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            <span x-text="successMessage"></span>
-                        </div>
-                        <div x-show="scannerStatus === 'error'" class="text-red-300">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            <span x-text="errorMessage"></span>
-                        </div>
-                    </div>
-
-                    <!-- RFID Input -->
-                    <div class="max-w-md mx-auto mb-6">
-                        <div class="relative">
-                            <input 
-                                type="text" 
-                                x-model="rfidInput"
-                                @keyup.enter="processRfid()"
-                                @input="handleRfidInput()"
-                                placeholder="Scan card or enter RFID number"
-                                class="w-full px-6 py-4 text-center text-lg bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all text-white placeholder:text-white/60"
-                                :disabled="scannerStatus === 'scanning'"
-                                x-ref="rfidInput">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-4">
-                                <svg x-show="scannerStatus === 'scanning'" class="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex gap-4 justify-center mb-6">
-                        <button 
-                            @click="processRfid()"
-                            :disabled="!rfidInput || scannerStatus === 'scanning'"
-                            class="px-8 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Record Attendance
-                        </button>
-                        <button 
-                            @click="clearInput()"
-                            class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl font-medium hover:bg-white/20 transition-all duration-200 border border-white/20">
-                            Clear
-                        </button>
-                    </div>
-
-                    <!-- Current Status -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                        <div class="text-sm text-blue-100 mb-1">Today's Status</div>
-                        <div class="text-lg font-semibold text-white" x-text="currentStatus">
-                            {{ $currentStatus ?? 'Not checked in today' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- QR Code Scanner Quick Access -->
+        @include('components.qr-attendance-links')
 
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -261,6 +163,7 @@
                                         {{ $displayHours }}
                                     @else
                                         @php
+                                            $isToday = $record->date->isToday();
                                             $timeIn = $record->time_in->setTimezone('Asia/Manila');
                                             $now = now('Asia/Manila');
                                             $diffInMinutes = $now->diffInMinutes($timeIn);
@@ -277,8 +180,12 @@
                                                 $currentHours = $hours . '.00 hrs';
                                             }
                                         @endphp
-                                        <span class="text-primary">{{ $currentHours }}</span>
-                                        <div class="text-xs text-muted-foreground">ongoing</div>
+                                        @if($isToday)
+                                            <span class="text-primary">{{ $currentHours }}</span>
+                                            <div class="text-xs text-muted-foreground">ongoing</div>
+                                        @else
+                                            <span class="text-muted-foreground">No time out</span>
+                                        @endif
                                     @endif
                                 </div>
                             </td>
@@ -288,12 +195,18 @@
                                         Complete
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                                        <svg class="w-3 h-3 mr-1 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        In Progress
-                                    </span>
+                                    @if($record->date->isToday())
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                            <svg class="w-3 h-3 mr-1 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            In Progress
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                            Incomplete
+                                        </span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -305,7 +218,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                     </svg>
                                     <p class="text-lg font-medium">No attendance records yet</p>
-                                    <p class="text-sm">Start by scanning your RFID card above</p>
+                                    <p class="text-sm">Start by scanning a QR code</p>
                                 </div>
                             </td>
                         </tr>
@@ -328,9 +241,15 @@
                                 Complete
                             </span>
                         @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                                In Progress
-                            </span>
+                            @if($record->date->isToday())
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                    In Progress
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                    Incomplete
+                                </span>
+                            @endif
                         @endif
                     </div>
                     
@@ -371,6 +290,7 @@
                                     {{ $displayHours }}
                                 @else
                                     @php
+                                        $isToday = $record->date->isToday();
                                         $timeIn = $record->time_in->setTimezone('Asia/Manila');
                                         $now = now('Asia/Manila');
                                         $diffInMinutes = $now->diffInMinutes($timeIn);
@@ -387,8 +307,12 @@
                                             $currentHours = $hours . '.00 hrs';
                                         }
                                     @endphp
-                                    <span class="text-blue-400">{{ $currentHours }}</span>
-                                    <div class="text-xs text-gray-500">ongoing</div>
+                                    @if($isToday)
+                                        <span class="text-blue-400">{{ $currentHours }}</span>
+                                        <div class="text-xs text-gray-500">ongoing</div>
+                                    @else
+                                        <span class="text-gray-500">No time out</span>
+                                    @endif
                                 @endif
                             </p>
                         </div>
@@ -401,7 +325,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2 a2 2 0 012 2"></path>
                         </svg>
                         <p class="text-lg font-medium">No attendance records yet</p>
-                        <p class="text-sm">Start by scanning your RFID card above</p>
+                        <p class="text-sm">Start by scanning a QR code</p>
                     </div>
                 </div>
                 @endforelse
@@ -492,308 +416,6 @@ function getCurrentPHTTime() {
         second: '2-digit',
         hour12: true
     }).format(now) + ' PHT';
-}
-
-function rfidScanner() {
-    return {
-        rfidInput: '',
-        scannerStatus: 'ready', // ready, scanning, success, error
-        successMessage: '',
-        errorMessage: '',
-        currentStatus: '{{ $currentStatus ?? "Not checked in today" }}',
-        realtimeSubscription: null,
-        supabaseAvailable: false,
-
-        init() {
-            // Auto-focus the RFID input
-            this.$refs.rfidInput.focus();
-            
-            // Listen for RFID card scans (usually end with Enter)
-            document.addEventListener('keydown', (e) => {
-                if (e.target !== this.$refs.rfidInput && e.key.match(/[0-9a-zA-Z]/)) {
-                    // If typing and not focused on input, focus it
-                    this.$refs.rfidInput.focus();
-                    this.rfidInput = e.key;
-                }
-            });
-
-            // Start real-time updates
-            this.startRealTimeUpdates();
-        },
-
-        startRealTimeUpdates() {
-            // Try to initialize Supabase
-            this.supabaseAvailable = initializeSupabase();
-            
-            if (this.supabaseAvailable && supabaseClient) {
-                console.log('🚀 Starting Supabase real-time subscriptions...');
-                this.setupSupabaseSubscription();
-            } else {
-                console.log('⚠️ Supabase not available, falling back to periodic updates');
-                this.startPeriodicUpdates();
-            }
-
-            // Update time display every second
-            setInterval(() => {
-                this.updateCurrentTime();
-            }, 1000);
-        },
-
-        setupSupabaseSubscription() {
-            if (!supabaseClient) return;
-            
-            const userId = {{ Auth::id() }};
-            
-            this.realtimeSubscription = supabaseClient
-                .channel(`attendance_changes_${userId}`)
-                .on(
-                    'postgres_changes',
-                    {
-                        event: '*',
-                        schema: 'public',
-                        table: 'attendance_records',
-                        filter: `user_id=eq.${userId}`
-                    },
-                    (payload) => {
-                        console.log('📡 Real-time update received:', payload);
-                        this.handleRealtimeUpdate(payload);
-                    }
-                )
-                .subscribe((status) => {
-                    console.log('Subscription status:', status);
-                    if (status === 'SUBSCRIBED') {
-                        console.log('✅ Successfully subscribed to attendance updates');
-                    } else if (status === 'CHANNEL_ERROR') {
-                        console.error('❌ Failed to subscribe to attendance updates');
-                        // Fallback to periodic updates
-                        this.startPeriodicUpdates();
-                    }
-                });
-        },
-
-        startPeriodicUpdates() {
-            // Fallback: Poll for updates every 30 seconds
-            setInterval(() => {
-                this.checkForUpdates();
-            }, 30000);
-        },
-
-        handleRealtimeUpdate(payload) {
-            console.log('Processing real-time update:', payload);
-            
-            // Show notification
-            this.showRealtimeNotification(payload.eventType);
-            
-            // Update statistics and current status
-            this.refreshDashboardData();
-            
-            // Refresh the page to show updated records (simple approach)
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        },
-
-        showRealtimeNotification(eventType) {
-            let message = '';
-            let bgColor = 'bg-blue-500';
-            
-            switch (eventType) {
-                case 'INSERT':
-                    message = '✅ Attendance recorded';
-                    bgColor = 'bg-green-500';
-                    break;
-                case 'UPDATE':
-                    message = '🔄 Attendance updated';
-                    bgColor = 'bg-blue-500';
-                    break;
-                default:
-                    message = '📡 Data updated';
-                    bgColor = 'bg-purple-500';
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-slide-in`;
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    ${message}
-                </div>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 4000);
-        },
-
-        async refreshDashboardData() {
-            try {
-                const response = await fetch('/student/check-updates', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    this.updateStatistics(data.statistics);
-                    this.currentStatus = data.currentStatus;
-                }
-            } catch (error) {
-                console.log('Failed to refresh dashboard data:', error);
-            }
-        },
-
-        updateCurrentTime() {
-            // Update the current time display in PHT
-            const timeElement = document.querySelector('.current-time');
-            if (timeElement) {
-                timeElement.textContent = getCurrentPHTTime();
-            }
-        },
-
-        async checkForUpdates() {
-            try {
-                const response = await fetch('/student/check-updates', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.hasUpdates) {
-                        // Refresh statistics and current status
-                        this.updateStatistics(data.statistics);
-                        this.currentStatus = data.currentStatus;
-                        
-                        // Show notification of update
-                        this.showUpdateNotification();
-                    }
-                }
-            } catch (error) {
-                console.log('Update check failed:', error);
-            }
-        },
-
-        updateStatistics(newStats) {
-            // Update statistics with animation
-            const totalHoursEl = document.querySelector('[x-text="statistics.total_hours"]');
-            const daysPresentEl = document.querySelector('[x-text="statistics.days_present"]');
-            
-            if (totalHoursEl && newStats.total_hours !== this.$parent.statistics.total_hours) {
-                totalHoursEl.classList.add('animate-pulse');
-                setTimeout(() => totalHoursEl.classList.remove('animate-pulse'), 1000);
-            }
-            
-            if (daysPresentEl && newStats.days_present !== this.$parent.statistics.days_present) {
-                daysPresentEl.classList.add('animate-pulse');
-                setTimeout(() => daysPresentEl.classList.remove('animate-pulse'), 1000);
-            }
-            
-            this.$parent.statistics = newStats;
-        },
-
-        showUpdateNotification() {
-            // Show a subtle notification that data was updated
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-slide-in';
-            notification.textContent = 'Attendance updated';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        },
-
-        handleRfidInput() {
-            // Reset status when user starts typing
-            if (this.scannerStatus === 'success' || this.scannerStatus === 'error') {
-                this.scannerStatus = 'ready';
-            }
-        },
-
-        async processRfid() {
-            if (!this.rfidInput.trim()) {
-                this.showError('Please enter or scan an RFID number');
-                return;
-            }
-
-            this.scannerStatus = 'scanning';
-            
-            try {
-                const response = await fetch('/student/rfid-attendance', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        rfid_number: this.rfidInput.trim()
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    this.showSuccess(data.message);
-                    this.currentStatus = data.status;
-                    this.clearInput();
-                    
-                    // If Supabase real-time is not available, refresh after a delay
-                    if (!this.supabaseAvailable) {
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
-                    }
-                } else {
-                    this.showError(data.message || 'Failed to record attendance');
-                }
-            } catch (error) {
-                console.error('RFID scan error:', error);
-                this.showError('Network error. Please try again.');
-            }
-        },
-
-        showSuccess(message) {
-            this.scannerStatus = 'success';
-            this.successMessage = message;
-            setTimeout(() => {
-                if (this.scannerStatus === 'success') {
-                    this.scannerStatus = 'ready';
-                }
-            }, 3000);
-        },
-
-        showError(message) {
-            this.scannerStatus = 'error';
-            this.errorMessage = message;
-            setTimeout(() => {
-                if (this.scannerStatus === 'error') {
-                    this.scannerStatus = 'ready';
-                }
-            }, 3000);
-        },
-
-        clearInput() {
-            this.rfidInput = '';
-            this.$refs.rfidInput.focus();
-        },
-
-        // Cleanup when component is destroyed
-        destroy() {
-            if (this.realtimeSubscription && supabaseClient) {
-                supabaseClient.removeChannel(this.realtimeSubscription);
-            }
-        }
-    }
 }
 
 function studentDashboard() {
