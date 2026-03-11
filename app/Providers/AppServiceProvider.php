@@ -21,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS in production
+        if (config('app.env') === 'production') {
+            \URL::forceScheme('https');
+        }
+
         // Log slow database queries (> 1 second)
         DB::listen(function ($query) {
             if ($query->time > 1000) {
