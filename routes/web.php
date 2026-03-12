@@ -27,6 +27,11 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Gracefully handle accidental GET requests to /logout
+Route::get('/logout', function () {
+    return redirect()->route('login');
+});
+
 // Registration routes
 Route::get('/register', [\App\Http\Controllers\RegistrationController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [\App\Http\Controllers\RegistrationController::class, 'register']);
