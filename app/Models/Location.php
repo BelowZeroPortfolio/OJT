@@ -63,6 +63,14 @@ class Location extends Model
     }
 
     /**
+     * Scope a query to only include active locations.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', '=', true);
+    }
+
+    /**
      * Calculate distance between two coordinates using Haversine formula.
      * Returns distance in meters.
      */

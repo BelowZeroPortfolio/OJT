@@ -177,7 +177,7 @@ class ReportsController extends Controller
             ->sort()
             ->values();
 
-        $locations = Location::where('is_active', true)
+        $locations = Location::active()
             ->orderBy('name')
             ->get(['id', 'name', 'location_code']);
 
@@ -215,7 +215,7 @@ class ReportsController extends Controller
                 'studentAttendance' => collect([]),
                 'locationAttendance' => collect([]),
                 'courses' => collect([]),
-                'locations' => Location::where('is_active', true)->get(['id', 'name', 'location_code']),
+                'locations' => Location::active()->get(['id', 'name', 'location_code']),
                 'filters' => [
                     'date_from' => Carbon::now()->startOfMonth()->toDateString(),
                     'date_to' => Carbon::now()->endOfMonth()->toDateString(),

@@ -78,7 +78,7 @@ return [
             'sslmode' => 'prefer',
             'options' => [
                 PDO::ATTR_PERSISTENT => false, // Disable persistent connections for pooler
-                PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::ATTR_EMULATE_PREPARES => false, // Use native prepared statements
                 PDO::ATTR_TIMEOUT => 30, // 30 second timeout
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Throw exceptions on errors
             ],
