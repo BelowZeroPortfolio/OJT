@@ -19,14 +19,15 @@ class ReportsController extends Controller
      */
     public function index(Request $request)
     {
-        // Get filters from request with smart defaults
-        $dateFrom = $request->input('date_from', Carbon::now()->startOfMonth()->toDateString());
-        $dateTo = $request->input('date_to', Carbon::now()->endOfMonth()->toDateString());
-        $course = $request->input('course');
-        $locationId = $request->input('location_id');
-        $studentName = $request->input('student_name');
-        $sortBy = $request->input('sort_by', 'name');
-        $sortOrder = $request->input('sort_order', 'asc');
+        try {
+            // Get filters from request with smart defaults
+            $dateFrom = $request->input('date_from', Carbon::now()->startOfMonth()->toDateString());
+            $dateTo = $request->input('date_to', Carbon::now()->endOfMonth()->toDateString());
+            $course = $request->input('course');
+            $locationId = $request->input('location_id');
+            $studentName = $request->input('student_name');
+            $sortBy = $request->input('sort_by', 'name');
+            $sortOrder = $request->input('sort_order', 'asc');
 
         // Build base query for students with filters
         $studentsQuery = User::where('role', 'student');
@@ -87,86 +88,84 @@ class ReportsController extends Controller
         $expectedAttendance = $totalStudents * max($workingDays, 1);
         $avgRate = $expectedAttendance > 0 ? round(($totalAttendance / $expectedAttendance) * 100, 1) : 0;
 
-        // Attendance by student with filters
-        $studentAttendance = $studentsQuery
-            ->with([
-                'attendanceRecords' => function ($query) use ($dateFrom, $dateTo, $locationId) {
-                    $query->whereBetween('date', [$dateFrom, $dateTo])
-                        ->when($locationId, function ($q) use ($locationId) {
-                            $q->where('location_id', $locationId);
-                        })
-                        ->select('user_id', 'date', 'total_hours');
-                },
-                'location:id,name'  // Only select needed columns
-            ])
-            ->select('id', 'name', 'student_id', 'course', 'assigned_location_id')  // Only select needed columns
+        // Attendance by student with filters - OPTIMIZED
+        $studentAttendance = DB::table('users')
+            ->leftJoin('locations', 'users.assigned_location_id', '=', 'locations.id')
+            ->leftJoin('attendance_records', function ($join) use ($dateFrom, $dateTo, $locationId) {
+                $join->on('users.id', '=', 'attendance_records.user_id')
+                    ->whereBetween('attendance_records.date', [$dateFrom, $dateTo]);
+                if ($locationId) {
+                    $join->where('attendance_records.location_id', $locationId);
+                }
+            })
+            ->where('users.role', 'student')
+            ->when($course, function ($q) use ($course) {
+                $q->where('users.course', $course);
+            })
+            ->when($locationId, function ($q) use ($locationId) {
+                $q->where('users.assigned_location_id', $locationId);
+            })
+            ->when($studentName, function ($q) use ($studentName) {
+                $q->where('users.name', 'like', '%' . $studentName . '%');
+            })
+            ->select(
+                'users.name',
+                'users.student_id',
+                'users.course',
+                'locations.name as location',
+                DB::raw('COUNT(DISTINCT attendance_records.date) as days_present'),
+                DB::raw('COALESCE(SUM(attendance_records.total_hours), 0) as total_hours')
+            )
+            ->groupBy('users.id', 'users.name', 'users.student_id', 'users.course', 'locations.name')
             ->get()
             ->map(function ($student) use ($workingDays) {
-                $records = $student->attendanceRecords;
-                $daysPresent = $records->unique('date')->count();
-                $totalHours = $records->whereNotNull('total_hours')->sum('total_hours');
-                
                 $attendanceRate = $workingDays > 0 
-                    ? round(($daysPresent / $workingDays) * 100, 1) 
+                    ? round(($student->days_present / $workingDays) * 100, 1) 
                     : 0;
                 
                 return [
                     'name' => $student->name,
                     'student_id' => $student->student_id,
                     'course' => $student->course,
-                    'location' => $student->location ? $student->location->name : 'N/A',
-                    'days_present' => $daysPresent,
-                    'total_hours' => round($totalHours, 2),
+                    'location' => $student->location ?? 'N/A',
+                    'days_present' => (int) $student->days_present,
+                    'total_hours' => round($student->total_hours, 2),
                     'attendance_rate' => $attendanceRate,
                 ];
             })
-            ->sortBy(function ($item) use ($sortBy) {
-                return $item[$sortBy];
-            }, SORT_REGULAR, $sortOrder === 'desc')
+            ->sortBy($sortBy, SORT_REGULAR, $sortOrder === 'desc')
             ->values();
 
-        // Attendance by location with filters
-        $locationQuery = Location::query();
-        
-        if ($locationId) {
-            $locationQuery->where('id', $locationId);
-        }
-        
-        $locationAttendance = $locationQuery
-            ->with([
-                'users' => function ($query) use ($course) {
-                    $query->where('role', 'student')
-                        ->when($course, function ($q) use ($course) {
-                            $q->where('course', $course);
-                        })
-                        ->select('id', 'assigned_location_id');  // Only select needed columns
-                },
-                'attendanceRecords' => function ($query) use ($dateFrom, $dateTo, $course, $studentName) {
-                    $query->whereBetween('date', [$dateFrom, $dateTo])
-                        ->when($course, function ($q) use ($course) {
-                            $q->whereHas('user', function ($uq) use ($course) {
-                                $uq->where('course', $course);
-                            });
-                        })
-                        ->when($studentName, function ($q) use ($studentName) {
-                            $q->whereHas('user', function ($uq) use ($studentName) {
-                                $uq->where('name', 'like', '%' . $studentName . '%');
-                            });
-                        })
-                        ->select('location_id', 'total_hours');  // Only select needed columns
+        // Attendance by location with filters - OPTIMIZED
+        $locationAttendance = DB::table('locations')
+            ->leftJoin('users', function ($join) use ($course) {
+                $join->on('locations.id', '=', 'users.assigned_location_id')
+                    ->where('users.role', 'student');
+                if ($course) {
+                    $join->where('users.course', $course);
                 }
-            ])
-            ->select('id', 'name')  // Only select needed columns
+            })
+            ->leftJoin('attendance_records', function ($join) use ($dateFrom, $dateTo, $course, $studentName) {
+                $join->on('locations.id', '=', 'attendance_records.location_id')
+                    ->whereBetween('attendance_records.date', [$dateFrom, $dateTo]);
+            })
+            ->when($locationId, function ($q) use ($locationId) {
+                $q->where('locations.id', $locationId);
+            })
+            ->select(
+                'locations.name',
+                DB::raw('COUNT(DISTINCT users.id) as total_students'),
+                DB::raw('COUNT(attendance_records.id) as total_attendance'),
+                DB::raw('COALESCE(AVG(attendance_records.total_hours), 0) as avg_hours')
+            )
+            ->groupBy('locations.id', 'locations.name')
             ->get()
             ->map(function ($location) {
-                $records = $location->attendanceRecords;
-                $avgHours = $records->whereNotNull('total_hours')->avg('total_hours');
-                
                 return [
                     'name' => $location->name,
-                    'total_students' => $location->users->count(),
-                    'total_attendance' => $records->count(),
-                    'avg_hours' => round($avgHours ?? 0, 2),
+                    'total_students' => (int) $location->total_students,
+                    'total_attendance' => (int) $location->total_attendance,
+                    'avg_hours' => round($location->avg_hours, 2),
                 ];
             });
 
@@ -182,24 +181,53 @@ class ReportsController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'location_code']);
 
-        return view('admin.reports', [
-            'totalStudents' => $totalStudents,
-            'totalAttendance' => $totalAttendance,
-            'avgRate' => $avgRate,
-            'totalHours' => round($totalHours, 2),
-            'studentAttendance' => $studentAttendance,
-            'locationAttendance' => $locationAttendance,
-            'courses' => $courses,
-            'locations' => $locations,
-            'filters' => [
-                'date_from' => $dateFrom,
-                'date_to' => $dateTo,
-                'course' => $course,
-                'location_id' => $locationId,
-                'student_name' => $studentName,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-            ],
-        ]);
+            return view('admin.reports', [
+                'totalStudents' => $totalStudents,
+                'totalAttendance' => $totalAttendance,
+                'avgRate' => $avgRate,
+                'totalHours' => round($totalHours, 2),
+                'studentAttendance' => $studentAttendance,
+                'locationAttendance' => $locationAttendance,
+                'courses' => $courses,
+                'locations' => $locations,
+                'filters' => [
+                    'date_from' => $dateFrom,
+                    'date_to' => $dateTo,
+                    'course' => $course,
+                    'location_id' => $locationId,
+                    'student_name' => $studentName,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Reports page error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'filters' => $request->all()
+            ]);
+            
+            // Return a simplified view with error message
+            return view('admin.reports', [
+                'totalStudents' => 0,
+                'totalAttendance' => 0,
+                'avgRate' => 0,
+                'totalHours' => 0,
+                'studentAttendance' => collect([]),
+                'locationAttendance' => collect([]),
+                'courses' => collect([]),
+                'locations' => Location::where('is_active', true)->get(['id', 'name', 'location_code']),
+                'filters' => [
+                    'date_from' => Carbon::now()->startOfMonth()->toDateString(),
+                    'date_to' => Carbon::now()->endOfMonth()->toDateString(),
+                    'course' => null,
+                    'location_id' => null,
+                    'student_name' => null,
+                    'sort_by' => 'name',
+                    'sort_order' => 'asc',
+                ],
+                'error' => 'A database error occurred. Please try again or contact support if the problem persists.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null
+            ]);
+        }
     }
 }

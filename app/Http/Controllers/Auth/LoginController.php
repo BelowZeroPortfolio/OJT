@@ -25,57 +25,94 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            
-            // Issue JWT token via Laravel Sanctum
-            $token = $user->createToken('auth-token', ['*'], now()->addHours(8))->plainTextToken;
-            
-            // For API requests, return JSON with token
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                
+                try {
+                    // Issue JWT token via Laravel Sanctum
+                    $token = $user->createToken('auth-token', ['*'], now()->addHours(8))->plainTextToken;
+                } catch (\Exception $e) {
+                    \Log::error('Token creation failed: ' . $e->getMessage());
+                    // Continue without token for web requests
+                    $token = null;
+                }
+                
+                // For API requests, return JSON with token
+                if ($request->expectsJson()) {
+                    if (!$token) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Login successful but token creation failed',
+                        ], 500);
+                    }
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Login successful',
+                        'token' => $token,
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'role' => $user->role,
+                        ],
+                    ], 200);
+                }
+                
+                // For web requests, regenerate session and redirect
+                $request->session()->regenerate();
+                
+                // Redirect based on role
+                if ($user->isAdmin()) {
+                    return redirect()->intended('/admin/dashboard');
+                }
+                
+                return redirect()->intended('/student/dashboard');
+            }
+
+            // Authentication failed - log the failed attempt
+            try {
+                $this->activityLogService->logFailedLogin($request, $credentials['email']);
+            } catch (\Exception $e) {
+                \Log::error('Failed to log failed login: ' . $e->getMessage());
+                // Continue even if logging fails
+            }
+
+            // Authentication failed
             if ($request->expectsJson()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Login successful',
-                    'token' => $token,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role,
-                    ],
-                ], 200);
+                    'success' => false,
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials do not match our records.'],
+            ]);
+        } catch (ValidationException $e) {
+            throw $e; // Re-throw validation exceptions
+        } catch (\Exception $e) {
+            \Log::error('Login error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A database error occurred. Please try again.',
+                ], 500);
             }
             
-            // For web requests, regenerate session and redirect
-            $request->session()->regenerate();
-            
-            // Redirect based on role
-            if ($user->isAdmin()) {
-                return redirect()->intended('/admin/dashboard');
-            }
-            
-            return redirect()->intended('/student/dashboard');
+            return back()->withErrors([
+                'email' => 'A database error occurred. Please try again or contact support if the problem persists.',
+            ])->withInput($request->only('email'));
         }
-
-        // Authentication failed - log the failed attempt
-        $this->activityLogService->logFailedLogin($request, $credentials['email']);
-
-        // Authentication failed
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials',
-            ], 401);
-        }
-
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials do not match our records.'],
-        ]);
     }
 
     /**

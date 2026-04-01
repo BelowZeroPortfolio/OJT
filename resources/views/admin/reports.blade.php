@@ -5,6 +5,27 @@
 
 @section('content')
 <div x-data="reportsPage()" x-init="init()">
+    <!-- Error Alert -->
+    @if(isset($error))
+    <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <h3 class="text-sm font-semibold text-destructive mb-1">Error Loading Reports</h3>
+                <p class="text-sm text-destructive/80">{{ $error }}</p>
+                @if(isset($error_details) && $error_details)
+                <details class="mt-2">
+                    <summary class="text-xs text-destructive/60 cursor-pointer hover:text-destructive">Technical details</summary>
+                    <pre class="mt-2 text-xs bg-background/50 p-2 rounded overflow-x-auto">{{ $error_details }}</pre>
+                </details>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Loading Overlay -->
     <div x-show="loading" 
          x-transition:enter="transition ease-out duration-200"
