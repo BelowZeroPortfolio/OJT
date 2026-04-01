@@ -143,3 +143,79 @@ Route::get('/test-supabase', function () {
         ], 500);
     }
 })->name('test.supabase');
+
+
+// Performance test route - REMOVE IN PRODUCTION
+Route::get('/performance-test', function () {
+    $results = [];
+    
+    // Test 1: Database connection
+    $start = microtime(true);
+    try {
+        DB::connection()->getPdo();
+        $results['db_connection'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['db_connection'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Test 2: Simple query
+    $start = microtime(true);
+    try {
+        DB::table('users')->count();
+        $results['simple_query'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['simple_query'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Test 3: Cache write
+    $start = microtime(true);
+    try {
+        Cache::put('test_key', 'test_value', 60);
+        $results['cache_write'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['cache_write'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Test 4: Cache read
+    $start = microtime(true);
+    try {
+        Cache::get('test_key');
+        $results['cache_read'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['cache_read'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Test 5: Session
+    $start = microtime(true);
+    try {
+        session(['test' => 'value']);
+        $results['session_write'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['session_write'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Test 6: Complex query
+    $start = microtime(true);
+    try {
+        DB::table('attendance_records')
+            ->join('users', 'attendance_records.user_id', '=', 'users.id')
+            ->select('attendance_records.*', 'users.name')
+            ->limit(10)
+            ->get();
+        $results['complex_query'] = round((microtime(true) - $start) * 1000, 2) . 'ms';
+    } catch (\Exception $e) {
+        $results['complex_query'] = 'FAILED: ' . $e->getMessage();
+    }
+    
+    // Environment info
+    $results['environment'] = [
+        'app_env' => config('app.env'),
+        'app_debug' => config('app.debug'),
+        'cache_driver' => config('cache.default'),
+        'session_driver' => config('session.driver'),
+        'db_connection' => config('database.default'),
+        'db_host' => config('database.connections.pgsql.host'),
+    ];
+    
+    return response()->json($results, 200, [], JSON_PRETTY_PRINT);
+});
