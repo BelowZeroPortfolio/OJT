@@ -55,6 +55,23 @@ class Location extends Model
     }
 
     /**
+     * Get the supervisor for this location.
+     */
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    /**
+     * Get students assigned to this location.
+     */
+    public function students()
+    {
+        return $this->hasMany(User::class, 'assigned_location_id')
+                    ->where('role', 'student');
+    }
+
+    /**
      * Get QR tokens for this location.
      */
     public function qrTokens()

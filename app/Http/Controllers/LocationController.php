@@ -23,7 +23,8 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::withCount('users')
+        $locations = Location::with('supervisor')
+            ->withCount('users')
             ->orderBy('name')
             ->paginate(20);
 
@@ -53,18 +54,35 @@ class LocationController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'is_active' => ['boolean'],
+            'supervisor_name' => ['required', 'string', 'max:255'],
+            'supervisor_email' => ['required', 'email', 'unique:users,email'],
         ]);
 
         // Set default value for is_active if not provided
         $validated['is_active'] = $request->has('is_active') ? (bool) $request->is_active : true;
 
-        $location = Location::create($validated);
+        // Create supervisor account
+        $supervisor = \App\Models\User::create([
+            'name' => $validated['supervisor_name'],
+            'email' => $validated['supervisor_email'],
+            'password' => \Hash::make('supervisor123'), // Default password
+            'role' => 'supervisor',
+        ]);
+
+        // Create location with supervisor
+        $location = Location::create([
+            'location_code' => $validated['location_code'],
+            'name' => $validated['name'],
+            'address' => $validated['address'] ?? null,
+            'is_active' => $validated['is_active'],
+            'supervisor_id' => $supervisor->id,
+        ]);
         
         // Invalidate caches after creating location
         $this->cacheService->invalidateOnLocationUpdate($location->id);
 
         return redirect()->route('admin.locations.index')
-            ->with('success', 'Location created successfully.');
+            ->with('success', 'Location and supervisor account created successfully. Default password: supervisor123');
     }
 
     /**
@@ -92,12 +110,40 @@ class LocationController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'is_active' => ['boolean'],
+            'supervisor_name' => ['nullable', 'string', 'max:255'],
+            'supervisor_email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($location->supervisor_id)],
         ]);
 
         // Handle checkbox value
         $validated['is_active'] = $request->has('is_active') ? (bool) $request->is_active : false;
 
-        $location->update($validated);
+        // Update supervisor if provided
+        if ($request->filled('supervisor_name') || $request->filled('supervisor_email')) {
+            if ($location->supervisor) {
+                // Update existing supervisor
+                $location->supervisor->update([
+                    'name' => $validated['supervisor_name'] ?? $location->supervisor->name,
+                    'email' => $validated['supervisor_email'] ?? $location->supervisor->email,
+                ]);
+            } else {
+                // Create new supervisor
+                $supervisor = \App\Models\User::create([
+                    'name' => $validated['supervisor_name'],
+                    'email' => $validated['supervisor_email'],
+                    'password' => \Hash::make('supervisor123'),
+                    'role' => 'supervisor',
+                ]);
+                $validated['supervisor_id'] = $supervisor->id;
+            }
+        }
+
+        $location->update([
+            'location_code' => $validated['location_code'],
+            'name' => $validated['name'],
+            'address' => $validated['address'] ?? $location->address,
+            'is_active' => $validated['is_active'],
+            'supervisor_id' => $validated['supervisor_id'] ?? $location->supervisor_id,
+        ]);
         
         // Invalidate caches after updating location
         $this->cacheService->invalidateOnLocationUpdate($location->id);

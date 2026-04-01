@@ -25,17 +25,18 @@ class AttendanceSeeder extends Seeder
         }
 
         $allRecords = [];
+        $attendanceMethods = ['rfid', 'qr_code'];
 
-        // Generate attendance records for the past 30 days
+        // Generate attendance records for the past 14 days
         foreach ($students as $student) {
-            // Each student attends 15-25 days out of the past 30 days (realistic pattern)
-            $daysToAttend = rand(15, 25);
+            // Each student attends 8-12 days out of the past 14 days
+            $daysToAttend = rand(8, 12);
             $attendedDates = [];
 
             // Generate attendance for random days, skipping weekends
             $attempts = 0;
-            while (count($attendedDates) < $daysToAttend && $attempts < 50) {
-                $daysAgo = rand(1, 30); // Start from 1 to avoid today
+            while (count($attendedDates) < $daysToAttend && $attempts < 30) {
+                $daysAgo = rand(1, 14);
                 $date = Carbon::now()->subDays($daysAgo)->startOfDay();
                 
                 // Skip weekends and already selected dates
@@ -46,52 +47,50 @@ class AttendanceSeeder extends Seeder
             }
 
             foreach ($attendedDates as $date) {
-                // Time in: between 7:00 AM and 9:00 AM
-                $timeIn = (clone $date)->setTime(
+                // Check in: between 7:00 AM and 9:00 AM
+                $checkIn = (clone $date)->setTime(
                     rand(7, 8),
                     rand(0, 59),
                     rand(0, 59)
                 );
 
-                // 85% chance of having time_out (complete record)
-                $hasTimeOut = rand(1, 100) <= 85;
-                $timeOut = null;
+                // 90% chance of having check out (complete record)
+                $hasCheckOut = rand(1, 100) <= 90;
+                $checkOut = null;
                 $totalHours = null;
 
-                if ($hasTimeOut) {
-                    // Time out: 6-10 hours after time in
-                    $hoursWorked = rand(6, 10);
-                    $timeOut = (clone $timeIn)->addHours($hoursWorked)->addMinutes(rand(0, 59));
-                    $totalHours = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                if ($hasCheckOut) {
+                    // Check out: 6-9 hours after check in
+                    $hoursWorked = rand(6, 9);
+                    $checkOut = (clone $checkIn)->addHours($hoursWorked)->addMinutes(rand(0, 59));
+                    $totalHours = round($checkOut->diffInMinutes($checkIn) / 60, 2);
                 }
 
-                // 95% of records are valid
-                $isValid = rand(1, 100) <= 95;
+                $method = $attendanceMethods[array_rand($attendanceMethods)];
 
                 $allRecords[] = [
                     'user_id' => $student->id,
                     'location_id' => $student->assigned_location_id,
                     'date' => $date->format('Y-m-d'),
-                    'time_in' => $timeIn,
-                    'time_out' => $timeOut,
+                    'time_in' => $checkIn,
+                    'time_out' => $checkOut,
                     'total_hours' => $totalHours,
                     'scan_type' => 'time_in',
-                    'scanner_ip' => '192.168.1.' . rand(1, 254),
-                    'is_valid' => $isValid,
-                    'validation_notes' => $isValid ? null : 'Location mismatch detected',
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'scan_method' => $method,
+                    'scanner_ip' => '192.168.1.' . rand(100, 200),
+                    'is_valid' => true,
+                    'created_at' => $checkIn,
+                    'updated_at' => $checkOut ?? $checkIn,
                 ];
             }
         }
 
-        // Insert all records in chunks for better performance
-        $chunks = array_chunk($allRecords, 500);
-        foreach ($chunks as $chunk) {
+        // Insert all records
+        foreach (array_chunk($allRecords, 100) as $chunk) {
             AttendanceRecord::insert($chunk);
         }
 
         $recordsCreated = count($allRecords);
-        $this->command->info("Created {$recordsCreated} attendance records for {$students->count()} students over the past 30 days.");
+        $this->command->info("Created {$recordsCreated} attendance records for {$students->count()} students over the past 14 days.");
     }
 }

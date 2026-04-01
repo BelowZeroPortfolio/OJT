@@ -79,4 +79,35 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Check if the user is a supervisor.
+     */
+    public function isSupervisor(): bool
+    {
+        return $this->role === 'supervisor';
+    }
+
+    /**
+     * Get the location supervised by this user (if supervisor).
+     */
+    public function supervisedLocation()
+    {
+        return $this->hasOne(Location::class, 'supervisor_id');
+    }
+
+    /**
+     * Get students assigned to the location supervised by this user.
+     */
+    public function supervisedStudents()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            Location::class,
+            'supervisor_id', // Foreign key on locations table
+            'assigned_location_id', // Foreign key on users table
+            'id', // Local key on users table
+            'id' // Local key on locations table
+        )->where('users.role', 'student');
+    }
 }

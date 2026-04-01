@@ -58,6 +58,52 @@
                 @enderror
             </div>
 
+            <!-- Supervisor Information -->
+            <div class="border-t border-border pt-6">
+                <h3 class="text-sm font-semibold text-foreground mb-4">Supervisor Account</h3>
+                
+                @if($location->supervisor)
+                    <div class="mb-4 p-3 bg-muted/50 rounded-lg">
+                        <p class="text-xs text-muted-foreground mb-1">Current Supervisor</p>
+                        <p class="text-sm font-medium text-foreground">{{ $location->supervisor->name }}</p>
+                        <p class="text-xs text-muted-foreground">{{ $location->supervisor->email }}</p>
+                    </div>
+                @endif
+                
+                <!-- Supervisor Name -->
+                <div class="mb-4">
+                    <label for="supervisor_name" class="block text-xs font-medium text-muted-foreground mb-1.5">
+                        Supervisor Name
+                    </label>
+                    <input type="text" 
+                           id="supervisor_name" 
+                           name="supervisor_name" 
+                           value="{{ old('supervisor_name', $location->supervisor->name ?? '') }}"
+                           class="w-full px-3 py-2 text-sm bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-input transition-colors text-foreground placeholder:text-muted-foreground @error('supervisor_name') border-red-500 @enderror">
+                    @error('supervisor_name')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Supervisor Email -->
+                <div>
+                    <label for="supervisor_email" class="block text-xs font-medium text-muted-foreground mb-1.5">
+                        Supervisor Email
+                    </label>
+                    <input type="email" 
+                           id="supervisor_email" 
+                           name="supervisor_email" 
+                           value="{{ old('supervisor_email', $location->supervisor->email ?? '') }}"
+                           class="w-full px-3 py-2 text-sm bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-input transition-colors text-foreground placeholder:text-muted-foreground @error('supervisor_email') border-red-500 @enderror">
+                    @error('supervisor_email')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                    @if(!$location->supervisor)
+                        <p class="mt-1 text-xs text-muted-foreground">Fill both fields to create a supervisor account (default password: supervisor123)</p>
+                    @endif
+                </div>
+            </div>
+
             <!-- Is Active -->
             <div>
                 <label class="flex items-center">

@@ -38,7 +38,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Location Code</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Supervisor</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Students</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
@@ -50,11 +50,17 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                             {{ $location->location_code }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                            {{ $location->name }}
+                        <td class="px-6 py-4 text-sm text-foreground">
+                            <div>{{ $location->name }}</div>
+                            <div class="text-xs text-muted-foreground">{{ $location->address ?: 'N/A' }}</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-foreground">
-                            {{ $location->address ?: 'N/A' }}
+                            @if($location->supervisor)
+                                <div>{{ $location->supervisor->name }}</div>
+                                <div class="text-xs text-muted-foreground">{{ $location->supervisor->email }}</div>
+                            @else
+                                <span class="text-muted-foreground">No supervisor</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                             {{ $location->users_count }}
@@ -111,6 +117,15 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
                             Inactive
                         </span>
+                    @endif
+                </div>
+                <div class="text-sm">
+                    <p class="text-muted-foreground">Supervisor</p>
+                    @if($location->supervisor)
+                        <p class="text-foreground">{{ $location->supervisor->name }}</p>
+                        <p class="text-xs text-muted-foreground">{{ $location->supervisor->email }}</p>
+                    @else
+                        <p class="text-muted-foreground">No supervisor assigned</p>
                     @endif
                 </div>
                 <div class="text-sm">

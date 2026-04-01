@@ -50,6 +50,24 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::post('/student/qr-scan', [\App\Http\Controllers\Api\QrAttendanceController::class, 'scan'])->name('student.qr-scan');
 });
 
+// Supervisor dashboard routes
+Route::middleware(['auth', 'role:supervisor'])->group(function () {
+    Route::get('/supervisor/dashboard', [\App\Http\Controllers\SupervisorDashboardController::class, 'index'])->name('supervisor.dashboard');
+    Route::get('/supervisor/check-updates', [\App\Http\Controllers\SupervisorDashboardController::class, 'checkUpdates'])->name('supervisor.check-updates');
+    
+    // Student management
+    Route::get('/supervisor/students', [\App\Http\Controllers\SupervisorStudentController::class, 'index'])->name('supervisor.students');
+    
+    // QR code management
+    Route::get('/supervisor/qr-display', [\App\Http\Controllers\SupervisorQrController::class, 'display'])->name('supervisor.qr-display');
+    Route::get('/supervisor/qr-generate', [\App\Http\Controllers\SupervisorQrController::class, 'generate'])->name('supervisor.qr-generate');
+    
+    // Profile management
+    Route::get('/supervisor/profile', [\App\Http\Controllers\SupervisorProfileController::class, 'edit'])->name('supervisor.profile.edit');
+    Route::put('/supervisor/profile', [\App\Http\Controllers\SupervisorProfileController::class, 'update'])->name('supervisor.profile.update');
+    Route::put('/supervisor/profile/password', [\App\Http\Controllers\SupervisorProfileController::class, 'updatePassword'])->name('supervisor.profile.update-password');
+});
+
 // Admin dashboard route
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');

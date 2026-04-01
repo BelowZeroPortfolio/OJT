@@ -22,7 +22,7 @@ class StudentUserSeeder extends Seeder
             return;
         }
 
-        // Generate 50 student accounts (lower end of 50-100 range for faster seeding)
+        // Generate 10 student accounts
         $students = [];
         $password = Hash::make('password');
         $courses = [
@@ -31,29 +31,39 @@ class StudentUserSeeder extends Seeder
             'Business Administration',
             'Accounting',
             'Engineering',
-            'Nursing',
         ];
 
-        for ($i = 1; $i <= 50; $i++) {
+        $studentNames = [
+            'Juan Dela Cruz',
+            'Maria Clara',
+            'Jose Rizal',
+            'Andres Bonifacio',
+            'Emilio Aguinaldo',
+            'Gabriela Silang',
+            'Apolinario Mabini',
+            'Melchora Aquino',
+            'Diego Silang',
+            'Marcelo Del Pilar',
+        ];
+
+        for ($i = 1; $i <= 10; $i++) {
             $students[] = [
-                'student_id' => sprintf('%04d-%03d', 2024, $i),
-                'name' => 'Student ' . $i,
+                'student_id' => sprintf('2024-%03d', $i),
+                'name' => $studentNames[$i - 1],
                 'email' => 'student' . $i . '@ojt.edu',
                 'password' => $password,
                 'role' => 'student',
-                'course' => $courses[array_rand($courses)],
-                'assigned_location_id' => $locations[array_rand($locations)],
+                'course' => $courses[($i - 1) % count($courses)],
+                'assigned_location_id' => $locations[($i - 1) % count($locations)], // Distribute evenly
+                'rfid_number' => sprintf('RFID%06d', $i),
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
 
-        // Insert in chunks for better performance
-        foreach (array_chunk($students, 25) as $chunk) {
-            User::insert($chunk);
-        }
+        User::insert($students);
 
-        $this->command->info('Created 50 student accounts with location assignments.');
+        $this->command->info('Created 10 student accounts with location assignments and RFID numbers.');
     }
 }
