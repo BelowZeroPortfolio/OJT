@@ -24,8 +24,12 @@ class AdminAttendanceController extends Controller
 
         // Cache for 5 minutes
         $data = Cache::remember($cacheKey, 300, function () use ($request) {
-            // Build query with eager loading
-            $query = AttendanceRecord::with(['user', 'location'])
+            // Build query with eager loading and select only needed columns
+            $query = AttendanceRecord::with([
+                    'user:id,name,student_id,course',
+                    'location:id,name,location_code'
+                ])
+                ->select('id', 'user_id', 'location_id', 'date', 'time_in', 'time_out', 'total_hours', 'scan_type')
                 ->orderBy('date', 'desc')
                 ->orderBy('time_in', 'desc');
 
@@ -60,9 +64,10 @@ class AdminAttendanceController extends Controller
             // Calculate statistics
             $totalStudents = User::where('role', 'student')->count();
             
-            $presentToday = AttendanceRecord::whereDate('date', Carbon::today())
+            // Optimized: use date comparison instead of whereDate
+            $presentToday = AttendanceRecord::where('date', Carbon::today()->toDateString())
                 ->where('scan_type', 'time_in')
-                ->distinct('user_id')
+                ->distinct()
                 ->count('user_id');
 
             $absentToday = $totalStudents - $presentToday;

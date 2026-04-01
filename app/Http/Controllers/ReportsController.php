@@ -97,8 +97,9 @@ class ReportsController extends Controller
                         })
                         ->select('user_id', 'date', 'total_hours');
                 },
-                'location'
+                'location:id,name'  // Only select needed columns
             ])
+            ->select('id', 'name', 'student_id', 'course', 'assigned_location_id')  // Only select needed columns
             ->get()
             ->map(function ($student) use ($workingDays) {
                 $records = $student->attendanceRecords;
@@ -137,7 +138,8 @@ class ReportsController extends Controller
                     $query->where('role', 'student')
                         ->when($course, function ($q) use ($course) {
                             $q->where('course', $course);
-                        });
+                        })
+                        ->select('id', 'assigned_location_id');  // Only select needed columns
                 },
                 'attendanceRecords' => function ($query) use ($dateFrom, $dateTo, $course, $studentName) {
                     $query->whereBetween('date', [$dateFrom, $dateTo])
@@ -150,9 +152,11 @@ class ReportsController extends Controller
                             $q->whereHas('user', function ($uq) use ($studentName) {
                                 $uq->where('name', 'like', '%' . $studentName . '%');
                             });
-                        });
+                        })
+                        ->select('location_id', 'total_hours');  // Only select needed columns
                 }
             ])
+            ->select('id', 'name')  // Only select needed columns
             ->get()
             ->map(function ($location) {
                 $records = $location->attendanceRecords;
