@@ -16,3 +16,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Test files
+test_*.php
+routes/web_performance_test.php
